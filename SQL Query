@@ -1,0 +1,190 @@
+SELECT
+  *
+FROM
+  "EXERCISE2_1"."PUBLIC"."SHOPING_TRENDS"
+  LIMIT
+  10;
+
+1. Records where size is missing and the purchase amount is greater than 50.
+
+SELECT CUSTOMERID,
+       Size,
+       Purchase_amount,
+       Itempurchased
+FROM Exercise2_1.Public.Shoping_trends
+WHERE Size is NULL AND Purchase_amount>50;
+
+--2.List the total number of purchases grouped by Season, treating NULL values as'Unknown'.
+ 
+SELECT COUNT (*),
+       IFNULL(Season,'Unknown') AS Season
+FROM Exercise2_1.Public.Shoping_trends
+GROUP BY Season;
+
+--3. Count how many customers used each Payment Method, treating NULLs as 'Not Provided'.
+
+SELECT IFNULL(PAYMENTMETHOD,'Not provided') AS PaymentMethod,
+      Count(CustomerID) AS Customer_count       
+FROM Exercise2_1.Public.shoping_trends
+GROUP BY ALL;
+
+
+--4. Show customers where Promo Code Used is NULL and Review Rating is below 3.0.
+
+SELECT Customerid,
+       Promocodeused,
+       reviewrating,
+       itempurchased
+FROM EXERCISE2_1.PUBLIC.SHOPING_TRENDS
+WHERE Reviewrating < 3.0;
+
+--5. Group customers by Shipping Type, and return the average purchase_amount, treating missing values as 0.
+
+SELECT Shippingtype,
+       count(customerid),
+       AVG(IFNULL(Purchase_amount,0)) AS Average_purchase_amount
+FROM Exercise2_1.Public.Shoping_trends
+GROUP BY ALL;
+
+--6.Display the number of purchases per Location only for those with more than 5 purchases and no NULL Payment Method.
+
+SELECT Location,
+       Sum(Previouspurchases) as total_purchases
+FROM Exercise2_1.Public.Shoping_trends 
+WHERE Previouspurchases>5 AND Paymentmethod IS NOT NULL
+GROUP BY LOCATION;
+
+--7. Create a column Spender Category that classifies customers using CASE: 'High' if amount > 80, 'Medium' if BETWEEN 50 AND 80, 'Low' otherwise. Replace NULLs in purchase_amount with 0.
+
+SELECT CustomerID,
+       IFNULL(Purchase_amount,0) AS Purchase_amount,
+    CASE
+      WHEN Purchase_amount>80 then 'High'
+      WHEN Purchase_amount BETWEEN 50 AND 80 then 'Medium'
+      ELSE 'Low'
+    END AS Spender_category
+FROM Exercise2_1.Public.Shoping_trends;
+
+--8. Find customers who have no Previous Purchases value but whose Color is not NULL.
+
+SELECT CustomerID,
+       Color,
+       Previouspurchases
+FROM Exercise2_1.Public.Shoping_trends
+WHERE Previouspurchases IS NULL AND Color IS NOT NULL;
+
+--9. Group records by Frequency of Purchases and show the total amount spent per group, treating NULL frequencies as 'Unknown'.
+
+SELECT IFNULL(FrequencyOfPurchases,'Unknown') AS FrequencyOfPurchases,
+       SUM(Purchase_amount) as Total_Purchase_Amount
+FROM Exercise2_1.Public.Shoping_trends
+GROUP BY ALL;
+
+--10. Display a list of all Category values with the number of times each was purchased, excluding rows where Categoryis NULL.
+
+SELECT Category,
+       Count(Itempurchased) AS Total_purchases
+FROM Exercise2_1.Public.Shoping_trends
+WHERE Category IS NOT NULL
+GROUP BY Category;
+
+--11. Return the top 5 Locations with the highest total purchase_amount, replacing NULLs in amountwith 0.
+
+SELECT Location,
+       SUM(IFNULL(Purchase_amount,0)) AS Total_purchase_amount
+FROM Exercise2_1.Public.Shoping_trends
+GROUP BY Location
+ORDER BY Total_purchase_amount DESC
+LIMIT 5;
+
+--12. Group customers by Gender and Size, and count how many entries have a NULL Color.
+
+SELECT Gender,
+       Size,
+       COUNT(CustomerID) AS Null_color_count
+FROM Exercise2_1.Public.Shoping_trends
+WHERE Color IS NULL
+GROUP BY Gender, size;
+
+--13. Identify all Item Purchased where more than 3 purchases had NULL Shipping Type.
+
+SELECT Itempurchased,
+       COUNT(*) AS Null_shipping_count
+FROM Exercise2_1.Public.Shoping_trends
+WHERE Shippingtype IS NULL
+GROUP BY Itempurchased
+HAVING Null_shipping_count > 3;
+
+--14.  Show a count of how many customers per Payment Method have NULL Review Rating.
+
+SELECT Itempurchased,
+SELECT Paymentmethod,
+       COUNT(*) AS Missing_Review_Rating_count
+FROM Exercise2_1.Public.Shoping_trends
+WHERE ReVIEWRATING IS NULL
+GROUP BY Paymentmethod;
+
+--15. Group by Category and return the average Review Rating, replacing NULLs with 0, and filter only where average is greater than 3.5.
+
+SELECT Category,
+       AVG(IFNULL(Reviewrating,0)) AS Average_review_rating
+FROM Exercise2_1.Public.Shoping_trends
+GROUP BY Category
+HAVING Average_review_rating>3.5;
+
+--16. List all Colors that are missing (NULL) in at least 2 rows and the average Age of customers for those rows.
+
+SELECT Color,
+       AVG(Age) as average_age,
+       COUNT(*)
+FROM Exercise2_1.Public.Shoping_trends
+WHERE Color IS NULL
+GROUP BY Color
+HAVING COUNT(*)>2;
+
+--17. Use CASE to create a column Delivery Speed: 'Fast' if Shipping Type is 'Express' or 'Next Day Air', 'Slow' if 'Standard', 'Other' for all else including NULL. Then count how many customers fall intoeach category.
+
+SELECT 
+  CASE 
+    WHEN ShippingType IN ('Express', 'Next Day Air') THEN 'Fast'
+    WHEN ShippingType 'Standard' THEN 'Slow'
+    ELSE 'Other'
+  END AS Delivery_Speed,
+  COUNT(*) AS Customer_Count
+FROM Exercise2_1.Public.Shoping_trends
+GROUP BY
+  CASE 
+    WHEN ShippingType IN ('Express', 'Next Day Air') THEN 'Fast'
+    WHEN ShippingType = 'Standard' THEN 'Slow'
+    ELSE 'Other'
+  END;
+
+
+--18. Find customers whose purchase_amount is NULL and whose Promo Code Used is 'Yes'.
+
+SELECT CustomerID,
+       Purchase_amount,
+       PromoCodeUsed
+FROM Exercise2_1.Public.Shoping_trends
+WHERE Purchase_amount IS NULL AND PromoCodeUsed='True';
+
+--19. Group by Location and show the maximum Previous Purchases, replacing NULLs with 0, only where the average rating is above 4.0.
+
+SELECT Location,
+       Max(IFNULL(PreviousPurchases,0)) as maximum_previous_purchases,
+       AVG(reviewrating) AS average_review_rating
+FROM Exercise2_1.Public.Shoping_trends
+GROUP BY Location
+HAVING average_review_rating>4;
+
+
+--20. Show customers who have a NULL Shipping Type but made a purchase in the range of 30 to 70 USD.
+
+SELECT CustomerID,
+       ShippingType,
+       Purchase_amount,
+       ItemPurchased
+FROM Exercise2_1.Public.Shoping_trends
+WHERE ShippingType IS NULL AND Purchase_amount BETWEEN 30 AND 70;
+
+
